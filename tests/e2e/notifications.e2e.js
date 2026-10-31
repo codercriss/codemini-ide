@@ -163,7 +163,15 @@ const NOISE = /monaco|pyodide|loadPyodide|initSqlJs|Failed to fetch|net::|requir
   console.log('\n[7] notification toast (island closed)');
   if (await panelOpen()) await toggleIsland();
   await ev(() => { CodeMiniNotifications.list().forEach(n => CodeMiniNotifications.remove(n.id)); document.getElementById('notifToastStack')?.replaceChildren(); });
-  const T = '.nt-toast';
+  // The earlier sections simulate service-worker updates, and the app's "was updated" toast (with a Reload button) stays on screen. The notification
+  // toast is lifted above any visible app toast on purpose (checked further down), so a leftover one made the corner checks below measure
+  // 35px + that toast's height (103, 124): five failures that were the test's own leftover, not the app. Clear it, and say so if it is back.
+  await ev(() => { document.getElementById('toast-container')?.remove(); document.querySelectorAll('.custom-toast').forEach(e => e.remove()); });
+  await sleep(200);
+  ok(await ev(() => !document.getElementById('toast-container') && !document.querySelector('.custom-toast')), 'precondition: no app toast is left over from the earlier sections');
+  // Scoped by id: the app's own notifications (offline-ready, storage-persist) arrive on their own schedule while this runs, and must not be
+  // mistaken for the toast under test (the dismiss and click checks used to see them, or click them, instead).
+  const NT = '.nt-toast', T = NT + '[data-id="t1"]';
   const rect = (sel) => ev((q) => { const e = document.querySelector(q); if (!e) return null; const r = e.getBoundingClientRect(); return { l: Math.round(r.left), r: Math.round(innerWidth - r.right), t: Math.round(r.top), b: Math.round(innerHeight - r.bottom), w: Math.round(r.width) }; }, sel);
   const add = (o) => ev((x) => CodeMiniNotifications.add(x), o);
   await add({ id: 't1', source: 'Source Control', title: 'Merge conflicts need your attention', text: 'Merging "dev" into "main" left 2 conflict(s). Open Source Control, resolve them in the Changes tab, then commit to finish.', actions: ['open-source-control'] });
@@ -189,14 +197,14 @@ const NOISE = /monaco|pyodide|loadPyodide|initSqlJs|Failed to fetch|net::|requir
 
   await add({ id: 't2', source: 'My Keys', title: 'Back up My Keys', text: 'You have not exported an encrypted backup yet.', actions: ['open-keys'] });
   await sleep(500);
-  await ev((q) => document.querySelector(q).click(), T);
+  await ev((q) => document.querySelector(q).click(), NT + '[data-id="t2"]');
   await sleep(400);
   ok((await panelOpen()) && (await viewerOpen()) && await ev(() => /Back up My Keys/.test(document.getElementById('niViewer').textContent)), 'clicking the toast opens that notification in Now Island');
-  ok(await ev((q) => document.querySelectorAll(q).length === 0 || [...document.querySelectorAll(q)].every(e => e.classList.contains('fade-out')), T), 'and the toast goes away');
+  ok(await ev((q) => document.querySelectorAll(q).length === 0 || [...document.querySelectorAll(q)].every(e => e.classList.contains('fade-out')), NT + '[data-id="t2"]'), 'and the toast goes away');
 
   await add({ id: 't3', title: 'Arrives while open', text: 'no toast expected' });
   await sleep(400);
-  ok(await ev((q) => !document.querySelector(q + '[data-id="t3"]'), T), 'no toast while Now Island is open (the item is in the list)');
+  ok(await ev((q) => !document.querySelector(q + '[data-id="t3"]'), NT), 'no toast while Now Island is open (the item is in the list)');
   await toggleIsland();
 
   await ev(() => { CodeMiniNotifications.list().forEach(n => CodeMiniNotifications.remove(n.id)); document.getElementById('notifToastStack')?.replaceChildren(); });
@@ -204,7 +212,7 @@ const NOISE = /monaco|pyodide|loadPyodide|initSqlJs|Failed to fetch|net::|requir
   await sleep(300);
   await add({ id: 't4', source: 'CodeMini', title: 'Ready to work offline', text: 'CodeMini is saved on this device and opens without a connection.' });
   await sleep(500);
-  r = await rect(T);
+  r = await rect(NT + '[data-id="t4"]');
   ok(r && r.l === 16 && r.r === 16 && r.b === 56, 'mobile: full width with 16px sides, 56px above the bottom, like the app toast', r);
   await page.setViewportSize({ width: 1280, height: 800 });
 

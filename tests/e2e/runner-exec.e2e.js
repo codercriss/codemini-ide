@@ -441,7 +441,7 @@ const framesOfHosts = (page) => page.frames().filter(f => /\/exec\.html/.test(f.
   await nbClick('.tb-interrupt'); await sleep(1200);
   nbo = await nbOut();
   ok(framesOfHosts(page).length === 0, 'Notebook Interrupt: the runaway host is shut down');
-  ok((nbo.match(/Execution Interrupted/g) || []).length === 1 && /variables were reset/.test(nbo) && !/Error:/.test(nbo), 'Notebook Interrupt: the cell says "Execution Interrupted" (and that the variables were reset), not an error', nbo.slice(0, 250));
+  ok((nbo.match(/Execution Interrupted/g) || []).length === 1 && /variables of its Python, R and SQL sessions were reset/.test(nbo) && !/Python host/.test(nbo) && !/Error:/.test(nbo), 'Notebook Interrupt: the cell says "Execution Interrupted" (and that the variables of the Python, R and SQL sessions were reset: the host serves all three, so it does not say "Python host"), not an error', nbo.slice(0, 250));
   await nbRun('print(8)'); nbo = await nbOut();
   ok(/(^|\n)8(\n|$)/.test(nbo) && framesOfHosts(page).length === 1, 'Notebook: the next cell starts a fresh host and runs', nbo.slice(0, 200));
   // The scratchpad (a quick-run panel of the notebook) used to execute Python in the app too.
@@ -602,7 +602,7 @@ const framesOfHosts = (page) => page.frames().filter(f => /\/exec\.html/.test(f.
   // an older deployment looks like: the app and the runner deploy separately (a runner from before version numbers sends nothing).
   const realConfig = require('fs').readFileSync(require('../lib/paths').resolve('runner/config.js'), 'utf8');
   const cm = /version:\s*(\d+),\s*build:\s*'([^']*)'/.exec(realConfig);
-  if (!cm) throw new Error('runner/config.js has no "version: N, build: \'YYYY-MM-DD\'" line: the runner in this repository is older than the app. Upload config.js, exec.js and shell.js from the latest package into the repository\'s runner/ folder.');
+  if (!cm) throw new Error('runner/config.js has no "version: N, build: \'YYYY-MM-DD\'" line: the runner in this repository is older than the app. This repository\'s runner/ folder is a copy of the CodeMini-Runner repository: copy the current config.js, exec.js and shell.js into it.');
   ok(!!cm, 'the runner config carries a version and a build');
   const realVersion = Number(cm[1]), realBuild = cm[2];
   const asConfig = (version, build) => realConfig.replace(/,\s*version:\s*\d+,\s*build:\s*'[^']*'/, version === null ? '' : ', version: ' + version + ', build: ' + JSON.stringify(build));

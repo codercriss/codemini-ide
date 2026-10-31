@@ -1533,7 +1533,7 @@ _res
         console.error("Execution error:", err); const errorMessage = err.toString();
         if (errorMessage.includes('KeyboardInterrupt') || errorMessage.includes('InterruptException') || window.kernelInterrupted) {
             if (err && err.hostKilled) {
-                outputDiv.innerHTML = '<span style="color: var(--color-danger); font-weight: bold;">[Execution Interrupted] The kernel was stopped by the user. The isolated Python host of this window was shut down, so its variables were reset.</span>';
+                outputDiv.innerHTML = '<span style="color: var(--color-danger); font-weight: bold;">[Execution Interrupted] The kernel was stopped by the user. The isolated host of this window was shut down, so the variables of its Python, R and SQL sessions were reset.</span>';
             } else {
                 outputDiv.innerHTML = '<span style="color: var(--color-danger); font-weight: bold;">[Execution Interrupted] The kernel was stopped by the user.</span>';
             }

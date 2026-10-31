@@ -10,9 +10,10 @@ const t = (name, fn) => { fn(); n++; console.log('  ok', name); };
 const cfg = paths.read('runner/config.js'), exec = paths.read('runner/exec.js'), shell = paths.read('runner/shell.js');
 const client = paths.read('js/viewers/runner-client.js'), settings = paths.read('js/core/settings-profile.js');
 const v = /version:\s*(\d+),\s*build:\s*'(\d{4}-\d{2}-\d{2})'/.exec(cfg);
-// The runner has two homes: the repository (what these tests read) and the Vercel project that serves it. They can drift apart, and CI then
-// fails here although the deployed runner is fine. Say so, instead of a bare assertion.
-const STALE = ' The runner files belong together (config.js, exec.js, shell.js): if the deployed runner is newer than the copy in this repository, upload those three files from the latest package into the repository\'s runner/ folder.';
+// The runner has two homes: its own repository (CodeMini-Runner, which Vercel deploys) and the copy in this repository's runner/ folder, which
+// is what these tests read. Copies drift: on 2026-10-28 this one lacked the version while the deployed runner had it, and CI failed although the
+// phone showed everything working. Say what to do, instead of a bare assertion.
+const STALE = ' The runner files belong together (config.js, exec.js, shell.js). This repository\'s runner/ folder is a copy of the CodeMini-Runner repository, where the runner is deployed from: copy the three current files into it.';
 const needs = /var RUNNER_NEEDS = \{ preview: (\d+), exec: (\d+) \};/.exec(client);
 
 console.log('runner version handshake');
