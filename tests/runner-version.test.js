@@ -58,4 +58,12 @@ t('Settings has a Check runner row, and fills it with textContent only', () => {
   const block = settings.slice(a, b);
   assert.ok(/out\.textContent = r\.message/.test(block) && !/innerHTML/.test(block));
 });
+t('webR is pinned to one release, the same in the host and in the app (not /latest/, which served a moving development snapshot)', () => {
+  const host = /var WEBR_URL = '(https:\/\/webr\.r-wasm\.org\/[^']+)'/.exec(exec);
+  const app = /import\('(https:\/\/webr\.r-wasm\.org\/[^']+)'\)/.exec(paths.read('js/notebook/notebook-kernels.js'));
+  assert.ok(host, 'WEBR_URL not found in runner/exec.js');
+  assert.ok(app, 'the webR import not found in js/notebook/notebook-kernels.js');
+  assert.ok(/^https:\/\/webr\.r-wasm\.org\/v\d+\.\d+\.\d+\/webr\.mjs$/.test(host[1]), 'the host must load a numbered release, not ' + host[1]);
+  assert.strictEqual(app[1], host[1], 'the app and the runner must load the same webR version');
+});
 console.log(`\n${n} checks passed`);

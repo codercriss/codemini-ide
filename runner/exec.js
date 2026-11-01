@@ -272,7 +272,9 @@
     // webR starts a Web Worker of its own from here. The runner has no cross-origin-isolation headers (like the app), so webR uses the same
     // fallback channel it always used. One environment per host for notebook cells (the in-app kernel had one per window); the scratchpad
     // (opts.global) runs in R's global environment, as before. Plots go through a png device into a temporary folder and come back as base64.
-    var WEBR_URL = 'https://webr.r-wasm.org/latest/webr.mjs', webR = null, webRLoading = null, rEnv = null, R_TMP = '/tmp/cm_plots';
+    // Pinned to a release, not to /latest/: on 2026-10-31 /latest/ served "0.6.1-dev+dd30a59", a development snapshot that changes under you. 0.6.0 is the release
+    // (R 4.6.0) closest to what was tested on a phone. Keep it the same as the in-app import in js/notebook/notebook-kernels.js (tests/runner-version.test.js checks).
+    var WEBR_URL = 'https://webr.r-wasm.org/v0.6.0/webr.mjs', webR = null, webRLoading = null, rEnv = null, R_TMP = '/tmp/cm_plots';
     function getWebR() {
         if (webR) return Promise.resolve(webR);
         if (webRLoading) return webRLoading;

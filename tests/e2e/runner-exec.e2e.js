@@ -55,7 +55,7 @@ const FAKE_SQLJS = [
   "    return [];",
   "  }; } }; };"
 ].join('\n');
-// webR stand-in: a real ES module file (see lib/fake-webr.mjs), served for https://webr.r-wasm.org/latest/webr.mjs
+// webR stand-in: a real ES module file (see lib/fake-webr.mjs), served for https://webr.r-wasm.org/<version>/webr.mjs (any version path, so the tests do not change when the pin does)
 const FAKE_WEBR = require('fs').readFileSync(path.join(__dirname, 'lib', 'fake-webr.mjs'), 'utf8');
 const FAKE_PHP = `export class PhpWeb extends EventTarget { async run(code) { if (/trigger_error/.test(code)) { this.dispatchEvent(new CustomEvent('error', { detail: 'PHP Fatal: boom' })); return; } const m = code.match(/echo "(.*?)";/); if (m) this.dispatchEvent(new CustomEvent('output', { detail: m[1] })); } }`;
 
@@ -75,7 +75,7 @@ async function open(browser, runnerUrl, extraLs, stubs, ctxOptions) {
     await page.route(/^https:\/\/cdn\.opalrb\.com\/opal\/1\.8\.3\/.+\.js$/, r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: CORS, body: '' }));
     await page.route(/^https:\/\/cdn\.opalrb\.com\/opal\/1\.8\.3\/opal\.min\.js$/, r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: CORS, body: FAKE_OPAL }));
     await page.route('https://unpkg.com/php-wasm@0.1.0/PhpWeb.mjs', r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: CORS, body: FAKE_PHP }));
-    await page.route('https://webr.r-wasm.org/latest/webr.mjs', r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: { 'Access-Control-Allow-Origin': '*' }, body: FAKE_WEBR }));
+    await page.route(/^https:\/\/webr\.r-wasm\.org\/[^/]+\/webr\.mjs$/, r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: { 'Access-Control-Allow-Origin': '*' }, body: FAKE_WEBR }));
     await page.route('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js', r => r.fulfill({ status: 200, contentType: 'text/javascript', headers: CORS, body: FAKE_SQLJS }));
   }
   await page.goto(APP + '/index.html'); await sleep(3500);

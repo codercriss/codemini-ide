@@ -16,5 +16,6 @@
     //   2 + the Console and Terminal host (exec.html)
     //   3 + editor Run and Debug, Python, R and SQL notebooks, one session per window
     //   4 + R plots found by asking R for the file list (webR's FS has no readdir)
-    window.CM_RUNNER_CONFIG = Object.freeze({ allowedParents: Object.freeze(parents), version: 4, build: '2026-10-28' });
+    // (The build date moves with any change to the runner files, even one that does not raise the level: 2026-10-31 pinned webR to v0.6.0.)
+    window.CM_RUNNER_CONFIG = Object.freeze({ allowedParents: Object.freeze(parents), version: 4, build: '2026-10-31' });
 })();

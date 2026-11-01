@@ -1,4 +1,4 @@
-// webR stand-in for the e2e tests: served in place of https://webr.r-wasm.org/latest/webr.mjs, for the app page and for the runner host alike.
+// webR stand-in for the e2e tests: served in place of https://webr.r-wasm.org/<version>/webr.mjs (whatever version the app and the runner pin), for the app page and for the runner host alike.
 // It understands a handful of R lines. Every WebR / REnvironment it creates counts itself in the window of the page that created it
 // (window.__webrCount, window.__rEnvCount), and installPackages records its arguments in window.__rInstalled.
 export class WebR {

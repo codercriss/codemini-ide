@@ -551,7 +551,8 @@ window.getWebRInstance = async function() {
                 const statusCircles = document.querySelectorAll('.status-circle');
                 statusCircles.forEach(c => c.classList.add('running'));
 
-                const { WebR } = await import('https://webr.r-wasm.org/latest/webr.mjs');
+                // Pinned to a release (not /latest/, a development snapshot); the same version as the runner host, runner/exec.js (tests/runner-version.test.js checks).
+                const { WebR } = await import('https://webr.r-wasm.org/v0.6.0/webr.mjs');
                 const webr = new WebR();
                 await webr.init();
                 window._coreEngines.webr = webr;
